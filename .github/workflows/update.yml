@@ -1,0 +1,30 @@
+name: Weekly Update & Build
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Weekly
+  workflow_dispatch:
+
+jobs:
+  update-and-build:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - uses: cachix/cachix-action@v15
+        with:
+          name: notabug
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Update flake.lock
+        run: nix flake update
+      # - name: Build RPi 5 Kernel
+      #   run: nix build .#linux_rpi5
+      - name: Build RPi 4 Kernel
+        run: nix build .#linux_rpi4
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: weekly flake update"
