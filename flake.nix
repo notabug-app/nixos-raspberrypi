@@ -46,6 +46,7 @@
                 '';
                 passthru = (old.passthru or { }) // {
                   buildDTBs = true;
+                  target = old.passthru.target or old.target or "Image";
                 };
               });
             rpiLinux7_2_rc = stripLocalVersion (
@@ -88,15 +89,19 @@
           {
             linuxPackages_rpi5_7_2_rc = prev.linuxPackagesFor rpiLinux7_2_rc;
             linuxPackages_rpi4_7_2_rc = prev.linuxPackagesFor (
-              rpiLinux7_2_rc.override {
-                defconfig = "bcm2711_defconfig";
-              }
+              stripLocalVersion (
+                rpiLinux7_2_rc.override {
+                  defconfig = "bcm2711_defconfig";
+                }
+              )
             );
             linuxPackages_rpi5 = prev.linuxPackagesFor rpiLinux7_1;
             linuxPackages_rpi4 = prev.linuxPackagesFor (
-              rpiLinux7_1.override {
-                defconfig = "bcm2711_defconfig";
-              }
+              stripLocalVersion (
+                rpiLinux7_1.override {
+                  defconfig = "bcm2711_defconfig";
+                }
+              )
             );
           };
       };
@@ -123,8 +128,10 @@
         // {
           # linux_rpi5 = pkgs.linuxPackages_rpi5.kernel;
           linux_rpi4 = pkgs.linuxPackages_rpi4.kernel;
+          linuxPackages_rpi4 = pkgs.linuxPackages_rpi4;
           # linux_rpi5_7_2_rc = pkgs.linuxPackages_rpi5_7_2_rc.kernel;
           linux_rpi4_7_2_rc = pkgs.linuxPackages_rpi4_7_2_rc.kernel;
+          linuxPackages_rpi4_7_2_rc = pkgs.linuxPackages_rpi4_7_2_rc;
         }
       );
 
@@ -137,10 +144,10 @@
 
       lib = (nixos-raspberrypi.lib or { }) // {
         inject-overlays = {
-          nixpkgs.overlays = (builtins.attrValues nixos-raspberrypi.overlays) ++ [ self.overlays.default ];
+          nixpkgs.overlays = lib.mkAfter [ self.overlays.default ];
         };
         inject-overlays-global = {
-          nixpkgs.overlays = (builtins.attrValues nixos-raspberrypi.overlays) ++ [ self.overlays.default ];
+          nixpkgs.overlays = lib.mkAfter [ self.overlays.default ];
         };
       };
     }
