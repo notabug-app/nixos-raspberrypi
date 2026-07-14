@@ -134,6 +134,15 @@
           modules = [ { boot.zfs.forceImportRoot = lib.mkForce false; } ];
         }
       ) (nixos-raspberrypi.nixosConfigurations or { });
+
+      lib = (nixos-raspberrypi.lib or { }) // {
+        inject-overlays = {
+          nixpkgs.overlays = (builtins.attrValues nixos-raspberrypi.overlays) ++ [ self.overlays.default ];
+        };
+        inject-overlays-global = {
+          nixpkgs.overlays = (builtins.attrValues nixos-raspberrypi.overlays) ++ [ self.overlays.default ];
+        };
+      };
     }
     // removeAttrs nixos-raspberrypi [
       "packages"
