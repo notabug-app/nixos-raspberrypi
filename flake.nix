@@ -96,7 +96,6 @@
           pkgs = import nixpkgs {
             inherit system;
             overlays = [
-              nixos-raspberrypi.overlays.default
               self.overlays.default
             ];
           };
@@ -109,11 +108,18 @@
           linux_rpi4_7_2_rc = pkgs.linuxPackages_rpi4_7_2_rc.kernel;
         }
       );
+
+      nixosConfigurations = builtins.mapAttrs (name: config:
+        config.extendModules {
+          modules = [ { boot.zfs.forceImportRoot = lib.mkForce false; } ];
+        }
+      ) (nixos-raspberrypi.nixosConfigurations or {});
     }
     // removeAttrs nixos-raspberrypi [
       "packages"
       "overlays"
       "nixosModules"
+      "nixosConfigurations"
       "installerImages"
       "outPath"
       "outputs"
