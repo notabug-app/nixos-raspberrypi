@@ -36,7 +36,13 @@
       overlays.default =
         final: prev:
         let
-          rpiLinux7_2_rc = prev.buildLinux {
+          stripLocalVersion = k: k.overrideAttrs (old: {
+            postConfigure = (old.postConfigure or "") + ''
+              sed -i $buildRoot/.config -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=""/'
+              sed -i $buildRoot/include/config/auto.conf -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=""/'
+            '';
+          });
+          rpiLinux7_2_rc = stripLocalVersion (prev.buildLinux {
             src = prev.fetchFromGitHub {
               owner = "raspberrypi";
               repo = "linux";
@@ -48,11 +54,9 @@
             defconfig = "bcm2712_defconfig";
             autoModules = false;
             ignoreConfigErrors = true;
-            features = {
-              efiBootStub = false;
-            };
-          };
-          rpiLinux7_1 = prev.buildLinux {
+            features = { efiBootStub = false; };
+          });
+          rpiLinux7_1 = stripLocalVersion (prev.buildLinux {
             src = prev.fetchFromGitHub {
               owner = "raspberrypi";
               repo = "linux";
