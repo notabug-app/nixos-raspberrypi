@@ -33,68 +33,73 @@
       forAllSystems = lib.genAttrs systems;
     in
     {
-      overlays.default =
-        final: prev:
-        let
-          stripLocalVersion =
-            k:
-            k.overrideAttrs (old: {
-              postConfigure = (old.postConfigure or "") + ''
-                sed -i $buildRoot/.config -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=""/'
-                sed -i $buildRoot/include/config/auto.conf -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=""/'
-              '';
-            });
-          rpiLinux7_2_rc = stripLocalVersion (
-            prev.buildLinux {
-              src = prev.fetchFromGitHub {
-                owner = "raspberrypi";
-                repo = "linux";
-                rev = "refs/heads/rpi-7.2.y";
-                hash = "sha256-yz5bIjb/yT3TR6lycmfFbRkcz9aJopOhFP3WOduY3BM=";
-              };
-              version = "7.2.0-rc3";
-              modDirVersion = "7.2.0-rc3";
-              defconfig = "bcm2712_defconfig";
-              autoModules = false;
-              ignoreConfigErrors = true;
-              features = {
-                efiBootStub = false;
-              };
-            }
-          );
-          rpiLinux7_1 = stripLocalVersion (
-            prev.buildLinux {
-              src = prev.fetchFromGitHub {
-                owner = "raspberrypi";
-                repo = "linux";
-                rev = "refs/heads/rpi-7.1.y";
-                hash = "sha256-Np+7ujObA3rOBWbKztUCDmKoTbUbDaijDo0ljArXt20=";
-              };
-              version = "7.1.3";
-              modDirVersion = "7.1.3";
-              defconfig = "bcm2712_defconfig";
-              autoModules = false;
-              ignoreConfigErrors = true;
-              features = {
-                efiBootStub = false;
-              };
-            }
-          );
-        in
-        {
-          linuxPackages_rpi5_7_2_rc = prev.linuxPackagesFor rpiLinux7_2_rc;
-          linuxPackages_rpi4_7_2_rc = prev.linuxPackagesFor (
-            rpiLinux7_2_rc.override {
-              defconfig = "bcm2711_defconfig";
-            }
-          );
-          linuxPackages_rpi5 = prev.linuxPackagesFor rpiLinux7_1;
-          linuxPackages_rpi4 = prev.linuxPackagesFor (
-            rpiLinux7_1.override {
-              defconfig = "bcm2711_defconfig";
-            }
-          );
-        };
+      overlays = (nixos-raspberrypi.overlays or { }) // {
+        default =
+          final: prev:
+          let
+            stripLocalVersion =
+              k:
+              k.overrideAttrs (old: {
+                postConfigure = (old.postConfigure or "") + ''
+                  sed -i $buildRoot/.config -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=""/'
+                  sed -i $buildRoot/include/config/auto.conf -e 's/^CONFIG_LOCALVERSION=.*/CONFIG_LOCALVERSION=""/'
+                '';
+                passthru = (old.passthru or { }) // {
+                  buildDTBs = true;
+                };
+              });
+            rpiLinux7_2_rc = stripLocalVersion (
+              prev.buildLinux {
+                src = prev.fetchFromGitHub {
+                  owner = "raspberrypi";
+                  repo = "linux";
+                  rev = "refs/heads/rpi-7.2.y";
+                  hash = "sha256-yz5bIjb/yT3TR6lycmfFbRkcz9aJopOhFP3WOduY3BM=";
+                };
+                version = "7.2.0-rc3";
+                modDirVersion = "7.2.0-rc3";
+                defconfig = "bcm2712_defconfig";
+                autoModules = false;
+                ignoreConfigErrors = true;
+                features = {
+                  efiBootStub = false;
+                };
+              }
+            );
+            rpiLinux7_1 = stripLocalVersion (
+              prev.buildLinux {
+                src = prev.fetchFromGitHub {
+                  owner = "raspberrypi";
+                  repo = "linux";
+                  rev = "refs/heads/rpi-7.1.y";
+                  hash = "sha256-Np+7ujObA3rOBWbKztUCDmKoTbUbDaijDo0ljArXt20=";
+                };
+                version = "7.1.3";
+                modDirVersion = "7.1.3";
+                defconfig = "bcm2712_defconfig";
+                autoModules = false;
+                ignoreConfigErrors = true;
+                features = {
+                  efiBootStub = false;
+                };
+              }
+            );
+          in
+          {
+            linuxPackages_rpi5_7_2_rc = prev.linuxPackagesFor rpiLinux7_2_rc;
+            linuxPackages_rpi4_7_2_rc = prev.linuxPackagesFor (
+              rpiLinux7_2_rc.override {
+                defconfig = "bcm2711_defconfig";
+              }
+            );
+            linuxPackages_rpi5 = prev.linuxPackagesFor rpiLinux7_1;
+            linuxPackages_rpi4 = prev.linuxPackagesFor (
+              rpiLinux7_1.override {
+                defconfig = "bcm2711_defconfig";
+              }
+            );
+          };
+      };
 
       nixosModules = (nixos-raspberrypi.nixosModules or { }) // {
         default = { ... }: {
