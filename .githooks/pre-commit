@@ -1,0 +1,11 @@
+#!/bin/sh
+echo "Formatting Nix files..."
+STAGED_NIX_FILES=$(git diff --name-only --cached -- '*.nix')
+if [ -n "$STAGED_NIX_FILES" ]; then
+  nix fmt $STAGED_NIX_FILES
+  if [ $? -ne 0 ]; then
+    echo "Formatting failed! Aborting commit."
+    exit 1
+  fi
+  git add $STAGED_NIX_FILES
+fi
