@@ -96,10 +96,12 @@
           );
         };
 
-      nixosModules.default = { ... }: {
-        imports = [ nixos-raspberrypi.nixosModules.default ];
-        nixpkgs.overlays = [ self.overlays.default ];
-        boot.zfs.forceImportRoot = false;
+      nixosModules = (nixos-raspberrypi.nixosModules or { }) // {
+        default = { ... }: {
+          imports = [ nixos-raspberrypi.nixosModules.default ];
+          nixpkgs.overlays = [ self.overlays.default ];
+          boot.zfs.forceImportRoot = lib.mkForce false;
+        };
       };
 
       packages = forAllSystems (
