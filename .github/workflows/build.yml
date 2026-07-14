@@ -1,0 +1,25 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - uses: cachix/cachix-action@v15
+        with:
+          name: notabug
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      # - name: Build RPi 5 Kernel
+      #   run: nix build .#linux_rpi5
+      - name: Build RPi 4 Kernel
+        run: nix build .#linux_rpi4
