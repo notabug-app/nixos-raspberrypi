@@ -2,7 +2,7 @@
   description = "Wrapper over nvmd/nixos-raspberrypi with 7.x kernels";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     nixos-raspberrypi = {
       url = "github:nvmd/nixos-raspberrypi";
