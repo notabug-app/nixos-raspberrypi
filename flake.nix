@@ -65,6 +65,13 @@
                 features = {
                   efiBootStub = false;
                 };
+                structuredExtraConfig = with lib.kernel; {
+                  DEBUG_INFO = lib.mkForce no;
+                  DEBUG_KERNEL = lib.mkForce no;
+                  PREEMPT_NONE = lib.mkForce yes;
+                  PREEMPT_VOLUNTARY = lib.mkForce no;
+                  PREEMPT = lib.mkForce no;
+                };
               }
             );
             rpiLinux7_1 = stripLocalVersion (
@@ -82,6 +89,13 @@
                 ignoreConfigErrors = true;
                 features = {
                   efiBootStub = false;
+                };
+                structuredExtraConfig = with lib.kernel; {
+                  DEBUG_INFO = lib.mkForce no;
+                  DEBUG_KERNEL = lib.mkForce no;
+                  PREEMPT_NONE = lib.mkForce yes;
+                  PREEMPT_VOLUNTARY = lib.mkForce no;
+                  PREEMPT = lib.mkForce no;
                 };
               }
             );
