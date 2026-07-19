@@ -73,10 +73,10 @@
                   owner = "raspberrypi";
                   repo = "linux";
                   rev = "refs/heads/rpi-7.1.y";
-                  hash = "sha256-Np+7ujObA3rOBWbKztUCDmKoTbUbDaijDo0ljArXt20=";
+                  hash = "sha256-IuQrDVbf1l6VjO/rhtbRWPw7H+RyWO71nyLlsAoAZGo=";
                 };
-                version = "7.1.3";
-                modDirVersion = "7.1.3";
+                version = "7.1.4";
+                modDirVersion = "7.1.4";
                 defconfig = "bcm2712_defconfig";
                 autoModules = false;
                 ignoreConfigErrors = true;
